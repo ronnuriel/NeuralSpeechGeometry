@@ -69,9 +69,8 @@ The result does **not** isolate “speech intent.” Attempted production and li
 Run the source notebook with the real-data configuration:
 
 ```bash
-KUNZ_CONFIG=configs/t15_interleaved_binnedtx.yaml \
-  jupyter nbconvert --to notebook --execute \
-  notebooks/01_attempted_vs_passive_shared_pca.ipynb \
+jupyter nbconvert --to notebook --execute \
+  notebooks/02_t15_real_data_executed.ipynb \
   --output t15_interleaved_binnedtx_executed.ipynb
 ```
 

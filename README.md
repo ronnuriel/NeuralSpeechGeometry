@@ -70,7 +70,9 @@ production and passive perception in this session. It is **not** yet evidence fo
 uniquely motor-intent signal: motor output, auditory input, timing, task demands, and
 overall neural gain also differ. PCA is descriptive, and the current Euclidean distance
 is not cross-validated. See [REAL_DATA_REPORT.md](REAL_DATA_REPORT.md) for the exact
-configuration, limitations, and next analyses.
+configuration, limitations, and next analyses, or open the
+[executed T15 real-data notebook](notebooks/02_t15_real_data_executed.ipynb) to see
+these exact plots and outputs in Jupyter.
 
 ## Critical design limitation and recommended archive
 
@@ -103,7 +105,8 @@ data/README.md                               data placement and contract
 data/interleaved_manifest.json               source size, checksum, and inventory
 data/raw/                                    immutable .mat files (ignored)
 notebooks/00_mat_file_audit.ipynb            inspect real files without assumptions
-notebooks/01_attempted_vs_passive_shared_pca.ipynb
+notebooks/01_attempted_vs_passive_shared_pca.ipynb  synthetic pipeline demo
+notebooks/02_t15_real_data_executed.ipynb     exact executed README result
 REAL_DATA_REPORT.md                          audit and first-result summary
 scripts/reproduce.py                         one-command real-data bootstrap
 src/kunz_speech_geometry/                    reusable loading and analysis code
@@ -152,14 +155,15 @@ python -m ipykernel install --user --name kunz-geometry --display-name "Kunz geo
 jupyter lab
 ```
 
-Open `notebooks/01_attempted_vs_passive_shared_pca.ipynb` and run all cells. With the default configuration it uses synthetic data, so collaborators can inspect the full workflow immediately.
+Open `notebooks/01_attempted_vs_passive_shared_pca.ipynb` to inspect the full
+workflow on deterministic synthetic data. After running the bootstrap, open
+`notebooks/02_t15_real_data_executed.ipynb` for the exact real T15 result shown above.
 
 To execute the same notebook on the downloaded T15 data:
 
 ```bash
-KUNZ_CONFIG=configs/t15_interleaved_binnedtx.yaml \
-  jupyter nbconvert --to notebook --execute \
-  notebooks/01_attempted_vs_passive_shared_pca.ipynb \
+jupyter nbconvert --to notebook --execute \
+  notebooks/02_t15_real_data_executed.ipynb \
   --output t15_interleaved_binnedtx_executed.ipynb
 ```
 

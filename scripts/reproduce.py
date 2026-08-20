@@ -181,7 +181,7 @@ def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> Path:
             "--to",
             "notebook",
             "--execute",
-            str(ROOT / "notebooks" / "01_attempted_vs_passive_shared_pca.ipynb"),
+            str(ROOT / "notebooks" / "02_t15_real_data_executed.ipynb"),
             "--output",
             "t15_interleaved_binnedtx_executed.ipynb",
             "--output-dir",
