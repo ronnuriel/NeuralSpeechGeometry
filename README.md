@@ -107,6 +107,7 @@ data/raw/                                    immutable .mat files (ignored)
 notebooks/00_mat_file_audit.ipynb            inspect real files without assumptions
 notebooks/01_attempted_vs_passive_shared_pca.ipynb  synthetic pipeline demo
 notebooks/02_t15_real_data_executed.ipynb     exact executed README result
+notebooks/03_getting_started_vectors.ipynb     beginner MAT-to-vector tutorial
 REAL_DATA_REPORT.md                          audit and first-result summary
 scripts/reproduce.py                         one-command real-data bootstrap
 src/kunz_speech_geometry/                    reusable loading and analysis code
@@ -126,7 +127,8 @@ python3 scripts/reproduce.py
 The command creates `.venv`, installs the project, downloads the exact 777 MB Dryad
 `interleavedVerbalBehaviors.zip` archive from the repository's `data-v1` release,
 verifies its original SHA-256 checksum and ZIP integrity, extracts the four participant
-files, runs the tests, and executes the T15 real-data notebook. Allow roughly 3 GB of
+files, runs the tests, executes the T15 analysis and vector tutorial notebooks, and
+exports the tutorial CSV files. Allow roughly 3 GB of
 free disk space for the environment, archive, extracted data, and generated outputs.
 
 Useful partial modes:
@@ -142,6 +144,26 @@ under CC0. Its DOI, byte size, checksum, and expected extracted inventory are re
 `data/interleaved_manifest.json`. Raw data remain ignored by Git, so ordinary clones stay
 small and repeated commits cannot duplicate hundreds of megabytes in repository history.
 
+## Recommended learning path
+
+New collaborators should begin with
+[`03_getting_started_vectors.ipynb`](notebooks/03_getting_started_vectors.ipynb).
+It uses the real T15 data and shows, without hiding the array operations:
+
+1. `.mat` file → `dataset.rates[trial, time, channel]`;
+2. one selected trial with shape `150 × 64`;
+3. response-window averaging → one 64-value trial vector;
+4. 22 repetitions → one 64-value word-condition centroid;
+5. all trials → `trial_vectors.csv`;
+6. 14 centroids → `word_centroids.csv`; and
+7. one shared PCA: `14 × 64 → 14 × 2`.
+
+The tutorial writes the CSV files to `results/tables/tutorial_vectors/`. Continue to
+[`02_t15_real_data_executed.ipynb`](notebooks/02_t15_real_data_executed.ipynb) for
+the complete geometry, permutation, and sensitivity analysis. Use
+[`00_mat_file_audit.ipynb`](notebooks/00_mat_file_audit.ipynb) to inspect the source
+MATLAB variables and shapes.
+
 ## Quick start
 
 Python 3.11 is recommended.
@@ -155,9 +177,9 @@ python -m ipykernel install --user --name kunz-geometry --display-name "Kunz geo
 jupyter lab
 ```
 
-Open `notebooks/01_attempted_vs_passive_shared_pca.ipynb` to inspect the full
-workflow on deterministic synthetic data. After running the bootstrap, open
-`notebooks/02_t15_real_data_executed.ipynb` for the exact real T15 result shown above.
+After running the bootstrap, begin with `notebooks/03_getting_started_vectors.ipynb`.
+Open `notebooks/02_t15_real_data_executed.ipynb` for the complete real T15 analysis,
+or `notebooks/01_attempted_vs_passive_shared_pca.ipynb` for a data-free synthetic demo.
 
 To execute the same notebook on the downloaded T15 data:
 
@@ -196,7 +218,7 @@ Every real-data adapter must return a `NeuralDataset` with:
 
 Raw condition labels must be preserved alongside canonical labels. Threshold-crossing rates and spike-band power should be analyzed separately before any justified feature concatenation.
 
-## Notebook 01: analysis plan
+## Full analysis plan (Notebooks 01 and 02)
 
 1. Validate shapes, finite values, timing, units, labels, and trial balance.
 2. Plot trial counts and population activity before dimensionality reduction.
@@ -220,7 +242,6 @@ Raw condition labels must be preserved alongside canonical labels. Threshold-cro
 
 ## Near-term roadmap
 
-- Implement the exact Kunz `.mat` adapter after auditing one representative file.
 - Add the authors' attempted-fit PCA as a paper-aligned sensitivity view.
 - Add session/block drift diagnostics and leave-one-block/session-out sensitivity checks.
 - Add cross-validated Mahalanobis distances and bootstrap confidence intervals.

@@ -161,8 +161,8 @@ def prepare_environment(venv_dir: Path) -> Path:
     return python
 
 
-def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> Path:
-    """Run tests and execute the first real-data notebook reproducibly."""
+def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> list[Path]:
+    """Run tests, the real analysis, and the beginner vector tutorial."""
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
     if not skip_tests:
@@ -172,27 +172,40 @@ def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     config = ROOT / "configs" / "t15_interleaved_binnedtx.yaml"
     env["KUNZ_CONFIG"] = str(config)
-    subprocess.run(
-        [
-            str(python),
-            "-m",
-            "jupyter",
-            "nbconvert",
-            "--to",
-            "notebook",
-            "--execute",
-            str(ROOT / "notebooks" / "02_t15_real_data_executed.ipynb"),
-            "--output",
+    notebook_jobs = [
+        (
+            ROOT / "notebooks" / "02_t15_real_data_executed.ipynb",
             "t15_interleaved_binnedtx_executed.ipynb",
-            "--output-dir",
-            str(output_dir),
-            "--ExecutePreprocessor.timeout=600",
-        ],
-        cwd=ROOT,
-        env=env,
-        check=True,
-    )
-    return output_dir / "t15_interleaved_binnedtx_executed.ipynb"
+        ),
+        (
+            ROOT / "notebooks" / "03_getting_started_vectors.ipynb",
+            "03_getting_started_vectors_executed.ipynb",
+        ),
+    ]
+    outputs: list[Path] = []
+    for source, output_name in notebook_jobs:
+        subprocess.run(
+            [
+                str(python),
+                "-m",
+                "jupyter",
+                "nbconvert",
+                "--to",
+                "notebook",
+                "--execute",
+                str(source),
+                "--output",
+                output_name,
+                "--output-dir",
+                str(output_dir),
+                "--ExecutePreprocessor.timeout=600",
+            ],
+            cwd=ROOT,
+            env=env,
+            check=True,
+        )
+        outputs.append(output_dir / output_name)
+    return outputs
 
 
 def parse_args() -> argparse.Namespace:
@@ -225,8 +238,11 @@ def main() -> None:
     if args.data_only:
         return
     python = sys.executable if args.skip_install else prepare_environment(ROOT / ".venv")
-    notebook = run_checks_and_analysis(Path(python), skip_tests=args.skip_tests)
-    print(f"Reproduction complete. Open: {notebook}")
+    notebooks = run_checks_and_analysis(Path(python), skip_tests=args.skip_tests)
+    print("Reproduction complete. Open:")
+    for notebook in notebooks:
+        print(f" - {notebook}")
+    print(f"Vector CSVs: {ROOT / 'results' / 'tables' / 'tutorial_vectors'}")
 
 
 if __name__ == "__main__":
