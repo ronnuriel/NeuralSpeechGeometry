@@ -185,6 +185,10 @@ def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> list[Path]:
             ROOT / "notebooks" / "04_trial_level_spatiotemporal_pca.ipynb",
             "04_trial_level_spatiotemporal_pca_executed.ipynb",
         ),
+        (
+            ROOT / "notebooks" / "05_leakage_safe_pc_decoding.ipynb",
+            "05_leakage_safe_pc_decoding_executed.ipynb",
+        ),
     ]
     outputs: list[Path] = []
     for source, output_name in notebook_jobs:

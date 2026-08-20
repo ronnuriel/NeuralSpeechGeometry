@@ -93,6 +93,23 @@ space, the condition-centroid distance is `23.024`; a whole-trial permutation wi
 systematic condition difference in this session, but it is not held-out decoding and
 does not isolate motor intent from movement, auditory input, timing, or task demands.
 
+## Leakage-safe decoding across PC counts
+
+[`05_leakage_safe_pc_decoding.ipynb`](notebooks/05_leakage_safe_pc_decoding.ipynb)
+tests whether more PCs improve condition classification without letting a test trial
+influence scaling or PCA. Each fold holds out one complete recording block. The scaler,
+20-PC basis, and logistic classifier are fitted only on the remaining blocks; models
+using `1, 2, 3, 5, 10, or 20` leading PCs are evaluated on the untouched block.
+
+![T15 held-out-block accuracy across PC counts](docs/assets/t15_fixed_pc_cv_curve.png)
+
+Mean held-out-block balanced accuracy rises from `86.0%` with one PC to `91.3%` with
+10 PCs, then plateaus at `91.1%` with 20 PCs. Because selecting the highest point and
+reporting the same curve would still be optimistic, the notebook also runs nested
+leave-one-block-out CV: inner blocks choose 10 or 20 PCs, and untouched outer blocks
+reach `91.6%` pooled balanced accuracy (`91.7%` mean across blocks). This decodes task
+condition—not word identity, inner-speech content, or a uniquely motor-intent signal.
+
 ## Critical design limitation and recommended archive
 
 In `isolatedVerbalBehaviors`, behaviors were collected in separate blocks. Intracortical recordings can drift between blocks, so attempted-versus-listening differences are **exploratory and potentially confounded by block/time**. We therefore:
@@ -128,6 +145,7 @@ notebooks/01_attempted_vs_passive_shared_pca.ipynb  synthetic pipeline demo
 notebooks/02_t15_real_data_executed.ipynb     exact executed README result
 notebooks/03_getting_started_vectors.ipynb     beginner MAT-to-vector tutorial
 notebooks/04_trial_level_spatiotemporal_pca.ipynb  one point per real T15 trial
+notebooks/05_leakage_safe_pc_decoding.ipynb     nested block-CV across PC counts
 REAL_DATA_REPORT.md                          audit and first-result summary
 scripts/reproduce.py                         one-command real-data bootstrap
 src/kunz_speech_geometry/                    reusable loading and analysis code
@@ -147,9 +165,11 @@ python3 scripts/reproduce.py
 The command creates `.venv`, installs the project, downloads the exact 777 MB Dryad
 `interleavedVerbalBehaviors.zip` archive from the repository's `data-v1` release,
 verifies its original SHA-256 checksum and ZIP integrity, extracts the four participant
-files, runs the tests, executes the T15 analysis, vector tutorial, and trial-level PCA
-notebooks, and exports their CSV files. Allow roughly 3 GB of
+files, runs the tests, executes the T15 analysis, vector tutorial, trial-level PCA, and
+leakage-safe decoding notebooks, and exports their CSV files. Allow roughly 3 GB of
 free disk space for the environment, archive, extracted data, and generated outputs.
+The nested decoding notebook can take a few minutes because it refits PCA separately
+inside every training fold.
 
 Useful partial modes:
 
@@ -182,7 +202,9 @@ The tutorial writes the CSV files to `results/tables/tutorial_vectors/`. Continu
 [`02_t15_real_data_executed.ipynb`](notebooks/02_t15_real_data_executed.ipynb) for
 the complete word geometry, permutation, and sensitivity analysis. Then open
 [`04_trial_level_spatiotemporal_pca.ipynb`](notebooks/04_trial_level_spatiotemporal_pca.ipynb)
-to see every individual attempted and listening trial as a point in PC1/PC2/PC3. Use
+to see every individual attempted and listening trial as a point in PC1/PC2/PC3. Follow
+with [`05_leakage_safe_pc_decoding.ipynb`](notebooks/05_leakage_safe_pc_decoding.ipynb)
+for held-out block decoding with fold-specific PCA. Use
 [`00_mat_file_audit.ipynb`](notebooks/00_mat_file_audit.ipynb) to inspect the source
 MATLAB variables and shapes.
 
@@ -202,6 +224,7 @@ jupyter lab
 After running the bootstrap, begin with `notebooks/03_getting_started_vectors.ipynb`.
 Open `notebooks/02_t15_real_data_executed.ipynb` for the complete real T15 analysis,
 `notebooks/04_trial_level_spatiotemporal_pca.ipynb` for the one-point-per-trial view,
+`notebooks/05_leakage_safe_pc_decoding.ipynb` for leakage-safe nested block CV,
 or `notebooks/01_attempted_vs_passive_shared_pca.ipynb` for a data-free synthetic demo.
 
 To execute the same notebook on the downloaded T15 data:
