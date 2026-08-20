@@ -2,6 +2,7 @@ import numpy as np
 
 from kunz_speech_geometry.pca import (
     fit_shared_pca,
+    fit_trial_spatiotemporal_pca,
     fit_word_centroid_pca,
     standardized_trial_vectors,
 )
@@ -57,3 +58,31 @@ def test_word_centroid_pca_has_one_row_per_condition_word_cell():
     word_pca = fit_word_centroid_pca(vectors, dataset.trials, n_components=3)
     assert word_pca.scores.shape == (14, 3)
     assert set(word_pca.metadata.columns) == {"condition", "word"}
+
+
+def test_trial_spatiotemporal_pca_flattens_one_selected_epoch_per_trial():
+    rates = np.arange(5 * 4 * 3, dtype=float).reshape(5, 4, 3)
+    time_mask = np.array([True, False, True, False])
+
+    result = fit_trial_spatiotemporal_pca(
+        rates,
+        time_mask,
+        n_components=3,
+        random_state=7,
+    )
+
+    expected = rates[:, time_mask, :].reshape(5, 6)
+    np.testing.assert_array_equal(result.vectors, expected)
+    assert result.feature_shape == (2, 3)
+    assert result.standardized_vectors.shape == (5, 6)
+    assert result.scores.shape == (5, 3)
+    assert result.components.shape == (3, 6)
+    np.testing.assert_allclose(result.standardized_vectors.mean(axis=0), 0.0, atol=1e-12)
+    np.testing.assert_allclose(result.scores.mean(axis=0), 0.0, atol=1e-12)
+    assert np.all(np.diff(result.explained_variance_ratio) <= 0)
+
+
+def test_trial_spatiotemporal_pca_rejects_an_empty_time_window():
+    rates = np.ones((4, 3, 2))
+    with np.testing.assert_raises_regex(ValueError, "select at least one time bin"):
+        fit_trial_spatiotemporal_pca(rates, np.zeros(3, dtype=bool))

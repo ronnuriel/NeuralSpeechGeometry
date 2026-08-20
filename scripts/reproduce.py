@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bootstrap the environment, public data, tests, and first real-data notebook."""
+"""Bootstrap the environment, public data, tests, and real-data notebooks."""
 
 from __future__ import annotations
 
@@ -162,7 +162,7 @@ def prepare_environment(venv_dir: Path) -> Path:
 
 
 def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> list[Path]:
-    """Run tests, the real analysis, and the beginner vector tutorial."""
+    """Run tests, the real analyses, and the beginner vector tutorial."""
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
     if not skip_tests:
@@ -180,6 +180,10 @@ def run_checks_and_analysis(python: Path, *, skip_tests: bool) -> list[Path]:
         (
             ROOT / "notebooks" / "03_getting_started_vectors.ipynb",
             "03_getting_started_vectors_executed.ipynb",
+        ),
+        (
+            ROOT / "notebooks" / "04_trial_level_spatiotemporal_pca.ipynb",
+            "04_trial_level_spatiotemporal_pca_executed.ipynb",
         ),
     ]
     outputs: list[Path] = []

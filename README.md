@@ -10,7 +10,8 @@ The first milestone asks:
 
 - The repository and analysis code are ready.
 - The Dryad `interleavedVerbalBehaviors.zip` archive has been downloaded, checksum-verified, extracted, and audited locally.
-- The first notebook runs end to end on deterministic synthetic data and on the real T15 interleaved session.
+- The notebooks run end to end on deterministic synthetic data and on the real T15 interleaved session.
+- A separate trial-level experiment now represents every T15 trial as a flattened time-by-channel vector and projects all 308 trials through one shared PCA.
 - The tested `.mat` adapter handles MATLAB indexing, row/column cue lists, channel sets, block centering, and T12's condition-specific listening alignment.
 - See [REAL_DATA_REPORT.md](REAL_DATA_REPORT.md) for the first T15/i6v result and its limitations.
 - Raw data are never committed to Git.
@@ -74,6 +75,24 @@ configuration, limitations, and next analyses, or open the
 [executed T15 real-data notebook](notebooks/02_t15_real_data_executed.ipynb) to see
 these exact plots and outputs in Jupyter.
 
+## Trial-level spatiotemporal PCA: one point per trial
+
+[`04_trial_level_spatiotemporal_pca.ipynb`](notebooks/04_trial_level_spatiotemporal_pca.ipynb)
+implements the complementary experiment requested by the research group. It keeps the
+same real T15 session and preprocessing, selects the fixed half-open `[0, 500)` ms
+window, and flattens each `50 time bins × 64 channels` trial into one 3,200-value
+vector. A single pooled scaler and PCA are fitted to all 308 trials; condition labels
+are used only to color the points afterward.
+
+![T15 trial-level attempted-speech and passive-listening PCA](docs/assets/t15_trial_spatiotemporal_pca_3d.png)
+
+The two trial clouds overlap, but their centroids are visibly shifted. PC1–PC3 retain
+13.5% of total standardized variance. In the full 3,200-dimensional standardized
+space, the condition-centroid distance is `23.024`; a whole-trial permutation within
+`session × block × word` gives `p = 0.001996` with 500 permutations. This supports a
+systematic condition difference in this session, but it is not held-out decoding and
+does not isolate motor intent from movement, auditory input, timing, or task demands.
+
 ## Critical design limitation and recommended archive
 
 In `isolatedVerbalBehaviors`, behaviors were collected in separate blocks. Intracortical recordings can drift between blocks, so attempted-versus-listening differences are **exploratory and potentially confounded by block/time**. We therefore:
@@ -108,6 +127,7 @@ notebooks/00_mat_file_audit.ipynb            inspect real files without assumpti
 notebooks/01_attempted_vs_passive_shared_pca.ipynb  synthetic pipeline demo
 notebooks/02_t15_real_data_executed.ipynb     exact executed README result
 notebooks/03_getting_started_vectors.ipynb     beginner MAT-to-vector tutorial
+notebooks/04_trial_level_spatiotemporal_pca.ipynb  one point per real T15 trial
 REAL_DATA_REPORT.md                          audit and first-result summary
 scripts/reproduce.py                         one-command real-data bootstrap
 src/kunz_speech_geometry/                    reusable loading and analysis code
@@ -127,8 +147,8 @@ python3 scripts/reproduce.py
 The command creates `.venv`, installs the project, downloads the exact 777 MB Dryad
 `interleavedVerbalBehaviors.zip` archive from the repository's `data-v1` release,
 verifies its original SHA-256 checksum and ZIP integrity, extracts the four participant
-files, runs the tests, executes the T15 analysis and vector tutorial notebooks, and
-exports the tutorial CSV files. Allow roughly 3 GB of
+files, runs the tests, executes the T15 analysis, vector tutorial, and trial-level PCA
+notebooks, and exports their CSV files. Allow roughly 3 GB of
 free disk space for the environment, archive, extracted data, and generated outputs.
 
 Useful partial modes:
@@ -160,7 +180,9 @@ It uses the real T15 data and shows, without hiding the array operations:
 
 The tutorial writes the CSV files to `results/tables/tutorial_vectors/`. Continue to
 [`02_t15_real_data_executed.ipynb`](notebooks/02_t15_real_data_executed.ipynb) for
-the complete geometry, permutation, and sensitivity analysis. Use
+the complete word geometry, permutation, and sensitivity analysis. Then open
+[`04_trial_level_spatiotemporal_pca.ipynb`](notebooks/04_trial_level_spatiotemporal_pca.ipynb)
+to see every individual attempted and listening trial as a point in PC1/PC2/PC3. Use
 [`00_mat_file_audit.ipynb`](notebooks/00_mat_file_audit.ipynb) to inspect the source
 MATLAB variables and shapes.
 
@@ -179,6 +201,7 @@ jupyter lab
 
 After running the bootstrap, begin with `notebooks/03_getting_started_vectors.ipynb`.
 Open `notebooks/02_t15_real_data_executed.ipynb` for the complete real T15 analysis,
+`notebooks/04_trial_level_spatiotemporal_pca.ipynb` for the one-point-per-trial view,
 or `notebooks/01_attempted_vs_passive_shared_pca.ipynb` for a data-free synthetic demo.
 
 To execute the same notebook on the downloaded T15 data:

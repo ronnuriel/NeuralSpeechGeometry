@@ -36,6 +36,21 @@ class WordCentroidPCAResult:
     explained_variance_ratio: np.ndarray
 
 
+@dataclass
+class TrialSpatiotemporalPCAResult:
+    """One pooled PCA of flattened time-by-channel vectors, one row per trial."""
+
+    vectors: np.ndarray
+    standardized_vectors: np.ndarray
+    scores: np.ndarray
+    components: np.ndarray
+    explained_variance_ratio: np.ndarray
+    scaler_mean: np.ndarray
+    scaler_scale: np.ndarray
+    time_mask: np.ndarray
+    feature_shape: tuple[int, int]
+
+
 def fit_shared_pca(
     rates: np.ndarray,
     labels: np.ndarray,
@@ -115,6 +130,58 @@ def standardized_trial_vectors(
         raise ValueError("Channel count does not match the fitted scaler")
     vectors = rates[:, time_mask, :].mean(axis=1)
     return (vectors - shared_pca.scaler_mean) / shared_pca.scaler_scale
+
+
+def fit_trial_spatiotemporal_pca(
+    rates: np.ndarray,
+    time_mask: np.ndarray,
+    *,
+    n_components: int = 3,
+    standardize_features: bool = True,
+    random_state: int = 0,
+) -> TrialSpatiotemporalPCAResult:
+    """Flatten each selected trial epoch and fit one PCA across all trials.
+
+    Input rows are independent trials. For every trial, the selected
+    ``[time, channel]`` matrix is flattened in row-major order, so channel
+    varies fastest within each time bin. A single feature-wise scaler and a
+    single PCA are fitted to the pooled trial matrix without using condition
+    labels.
+    """
+    rates = np.asarray(rates, dtype=float)
+    time_mask = np.asarray(time_mask, dtype=bool)
+    if rates.ndim != 3:
+        raise ValueError("rates must have shape [trial, time, channel]")
+    if rates.shape[0] < 2:
+        raise ValueError("At least two trials are required")
+    if time_mask.shape != (rates.shape[1],) or not time_mask.any():
+        raise ValueError("time_mask must select at least one time bin")
+    if not np.isfinite(rates).all():
+        raise ValueError("rates must contain only finite values")
+
+    feature_shape = (int(time_mask.sum()), rates.shape[2])
+    vectors = rates[:, time_mask, :].reshape(rates.shape[0], -1)
+    max_components = min(vectors.shape)
+    if not 1 <= n_components <= max_components:
+        raise ValueError(f"n_components must be between 1 and {max_components}")
+
+    scaler = StandardScaler(with_mean=True, with_std=standardize_features)
+    standardized = scaler.fit_transform(vectors)
+    model = PCA(n_components=n_components, svd_solver="full", random_state=random_state)
+    scores = model.fit_transform(standardized)
+    scale = scaler.scale_ if scaler.scale_ is not None else np.ones(vectors.shape[1])
+
+    return TrialSpatiotemporalPCAResult(
+        vectors=vectors,
+        standardized_vectors=standardized,
+        scores=scores,
+        components=model.components_.copy(),
+        explained_variance_ratio=model.explained_variance_ratio_.copy(),
+        scaler_mean=scaler.mean_.copy(),
+        scaler_scale=np.asarray(scale).copy(),
+        time_mask=time_mask.copy(),
+        feature_shape=feature_shape,
+    )
 
 
 def fit_word_centroid_pca(
