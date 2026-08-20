@@ -1,0 +1,42 @@
+project:
+  random_seed: 20250821
+
+dataset:
+  mode: mat
+  variant: interleavedVerbalBehaviors
+  mat_path: data/raw/interleavedVerbalBehaviors/t15.2024.06.14_interleavedVerbalBehaviors_raw.mat
+  participant: T15
+  feature: binnedTX
+  units: counts/bin
+  channel_sets: i6v
+  epoch_ms: [-500, 1000]
+  block_center: true
+  conditions:
+    - attempted_vocalized
+    - passive_listening
+
+preprocessing:
+  alignment_event: condition-specific_behavior_onset
+  baseline_window_ms: [-500, -100]
+  analysis_window_ms: [0, 500]
+  smoothing_sigma_ms: 60
+  baseline_correct: true
+  standardize_channels: true
+
+pca:
+  n_components: 10
+  balance_conditions_for_fit: true
+  word_centroid_components: 3
+
+geometry:
+  subspace_dimension: 3
+  n_permutations: 500
+  permutation_strata:
+    - session
+    - block
+    - word
+
+outputs:
+  save_figures: true
+  figure_dir: results/figures/t15_interleaved_binnedtx
+  table_dir: results/tables/t15_interleaved_binnedtx

@@ -9,8 +9,10 @@ The first milestone asks:
 ## Status
 
 - The repository and analysis code are ready.
-- The first notebook runs end to end on deterministic synthetic data.
-- The real `.mat` adapter is intentionally not guessed. The data-audit notebook will expose the actual fields and shapes once files are placed in `data/raw/`.
+- The Dryad `interleavedVerbalBehaviors.zip` archive has been downloaded, checksum-verified, extracted, and audited locally.
+- The first notebook runs end to end on deterministic synthetic data and on the real T15 interleaved session.
+- The tested `.mat` adapter handles MATLAB indexing, row/column cue lists, channel sets, block centering, and T12's condition-specific listening alignment.
+- See [REAL_DATA_REPORT.md](REAL_DATA_REPORT.md) for the first T15/i6v result and its limitations.
 - Raw data are never committed to Git.
 
 ## Why one shared PCA?
@@ -64,10 +66,12 @@ The paper's Figure 2 analysis used smoothed threshold-crossing and spike-band-po
 
 ```text
 configs/default.yaml                         analysis choices
+configs/t15_interleaved_binnedtx.yaml        first real-data run
 data/README.md                               data placement and contract
 data/raw/                                    immutable .mat files (ignored)
 notebooks/00_mat_file_audit.ipynb            inspect real files without assumptions
 notebooks/01_attempted_vs_passive_shared_pca.ipynb
+REAL_DATA_REPORT.md                          audit and first-result summary
 src/kunz_speech_geometry/                    reusable loading and analysis code
 tests/                                       synthetic unit and smoke tests
 results/figures/                             generated figures (ignored)
@@ -89,6 +93,15 @@ jupyter lab
 
 Open `notebooks/01_attempted_vs_passive_shared_pca.ipynb` and run all cells. With the default configuration it uses synthetic data, so collaborators can inspect the full workflow immediately.
 
+To execute the same notebook on the downloaded T15 data:
+
+```bash
+KUNZ_CONFIG=configs/t15_interleaved_binnedtx.yaml \
+  jupyter nbconvert --to notebook --execute \
+  notebooks/01_attempted_vs_passive_shared_pca.ipynb \
+  --output t15_interleaved_binnedtx_executed.ipynb
+```
+
 Run the checks with:
 
 ```bash
@@ -100,9 +113,8 @@ pytest
 1. For the direct condition comparison, download and extract `interleavedVerbalBehaviors.zip` outside Git. Use `isolatedVerbalBehaviors.zip` for the broader seven-behavior exploratory analysis.
 2. Copy or symlink only the files needed for one participant into `data/raw/`.
 3. Run `notebooks/00_mat_file_audit.ipynb` (or `kunz-audit-mat data/raw/file.mat`).
-4. Record the discovered field names, axes, units, timing events, condition labels, and feature type.
-5. Add a small explicit adapter in `src/kunz_speech_geometry/io.py` and tests using metadata or a tiny non-sensitive fixture.
-6. Change `dataset.mode` in `configs/default.yaml` from `synthetic` to `mat` only after the adapter validates the canonical contract.
+4. Use `load_interleaved_mat()` with an explicit feature, channel set, and epoch; the included T15 configuration is the reference example.
+5. Keep `configs/default.yaml` in synthetic mode so the repository remains runnable without the large source files.
 
 Do not silently infer axis order. MATLAB arrays often squeeze singleton dimensions, and files saved as MATLAB v7.3 require HDF5-aware loading.
 

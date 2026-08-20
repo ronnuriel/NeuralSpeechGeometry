@@ -6,6 +6,9 @@ Place extracted `.mat` files in `data/raw/` or create symlinks there. Keep the o
 
 Source: [Dryad DOI 10.5061/dryad.gf1vhhn1j](https://doi.org/10.5061/dryad.gf1vhhn1j)
 
+The local archive was verified at 777,419,058 bytes with SHA-256
+`19f90f09f2ea32f1428b7cc1c7dd8c0606dfbc988c57fcaf64aea03e77b9d409`.
+
 Recommended first download for attempted-versus-listening inference: `interleavedVerbalBehaviors.zip`. Use `isolatedVerbalBehaviors.zip` later for descriptive coverage of all seven behaviors.
 
 Relevant interleaved files documented by the official analysis are:
@@ -61,6 +64,7 @@ Loader guardrails:
 - Expected words are `ban`, `choice`, `day`, `feel`, `kite`, `though`, and `were`.
 - Use `binSize`; never infer timing from participant identity.
 - Do not smooth across block boundaries.
+- In the interleaved T12 session, passive-listening onset uses the delay-period start in the authors' Figure 5 code; attempted trials use the go-period start. The adapter preserves this distinction.
 - For isolated passive-listening files, the roughly 1.5 s audio stimulus can precede the stored go epoch. Verify the condition-specific event semantics instead of aligning every behavior naively to `goTrialEpochs`.
 - T16's interleaved attempted condition is mimed, not vocalized.
 
