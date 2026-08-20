@@ -40,6 +40,38 @@ PCA is descriptive. Separation in a plot does not, by itself, establish decoding
 
 An electrode-as-point analysis would use `channels x time` and ask which electrodes have similar temporal profiles. That is useful as a secondary channel-organization analysis, but it is not the primary population-dynamics analysis in this repository.
 
+## First real-data result: attempted speech differs from listening
+
+The first executed analysis uses T15's interleaved session, 64 `i6v` channels,
+threshold-crossing counts, and a fixed 0–500 ms response window. It includes 308
+trials: 22 repetitions of each of seven words in each condition. Attempted vocalized
+speech and passive listening were balanced when fitting one shared PCA basis.
+
+The condition-average trajectories separate strongly after behavior onset in the
+shared neural space:
+
+![T15 attempted-speech and passive-listening trajectories in one shared PCA space](docs/assets/t15_condition_trajectories.png)
+
+The word-centroid view shows each matched word in the same coordinate system. Circles
+are attempted vocalized speech, squares are passive listening, and each line connects
+the same word across conditions:
+
+![T15 shared condition-by-word geometry](docs/assets/t15_word_centroid_geometry.png)
+
+Initial full-space results:
+
+- condition-centroid distance: `2.873` pooled-standardized units;
+- whole-trial permutation within `session × block × word`: `p = 0.001996` with
+  500 permutations and 35 exchangeable strata; and
+- seven-word geometry correlation: Spearman `rho = 0.432`.
+
+This is evidence that the recorded population dynamics differ between attempted
+production and passive perception in this session. It is **not** yet evidence for a
+uniquely motor-intent signal: motor output, auditory input, timing, task demands, and
+overall neural gain also differ. PCA is descriptive, and the current Euclidean distance
+is not cross-validated. See [REAL_DATA_REPORT.md](REAL_DATA_REPORT.md) for the exact
+configuration, limitations, and next analyses.
+
 ## Critical design limitation and recommended archive
 
 In `isolatedVerbalBehaviors`, behaviors were collected in separate blocks. Intracortical recordings can drift between blocks, so attempted-versus-listening differences are **exploratory and potentially confounded by block/time**. We therefore:
@@ -68,15 +100,44 @@ The paper's Figure 2 analysis used smoothed threshold-crossing and spike-band-po
 configs/default.yaml                         analysis choices
 configs/t15_interleaved_binnedtx.yaml        first real-data run
 data/README.md                               data placement and contract
+data/interleaved_manifest.json               source size, checksum, and inventory
 data/raw/                                    immutable .mat files (ignored)
 notebooks/00_mat_file_audit.ipynb            inspect real files without assumptions
 notebooks/01_attempted_vs_passive_shared_pca.ipynb
 REAL_DATA_REPORT.md                          audit and first-result summary
+scripts/reproduce.py                         one-command real-data bootstrap
 src/kunz_speech_geometry/                    reusable loading and analysis code
 tests/                                       synthetic unit and smoke tests
 results/figures/                             generated figures (ignored)
 results/tables/                              generated summaries (ignored)
 ```
+
+## One-command real-data reproduction
+
+After cloning, run:
+
+```bash
+python3 scripts/reproduce.py
+```
+
+The command creates `.venv`, installs the project, downloads the exact 777 MB Dryad
+`interleavedVerbalBehaviors.zip` archive from the repository's `data-v1` release,
+verifies its original SHA-256 checksum and ZIP integrity, extracts the four participant
+files, runs the tests, and executes the T15 real-data notebook. Allow roughly 3 GB of
+free disk space for the environment, archive, extracted data, and generated outputs.
+
+Useful partial modes:
+
+```bash
+python3 scripts/reproduce.py --data-only
+python3 scripts/reproduce.py --analysis-only
+python3 scripts/reproduce.py --analysis-only --skip-install
+```
+
+The release asset is an unchanged mirror of Dryad file `4203846`, which is distributed
+under CC0. Its DOI, byte size, checksum, and expected extracted inventory are recorded in
+`data/interleaved_manifest.json`. Raw data remain ignored by Git, so ordinary clones stay
+small and repeated commits cannot duplicate hundreds of megabytes in repository history.
 
 ## Quick start
 

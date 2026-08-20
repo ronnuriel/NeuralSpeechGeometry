@@ -9,6 +9,11 @@ Source: [Dryad DOI 10.5061/dryad.gf1vhhn1j](https://doi.org/10.5061/dryad.gf1vhh
 The local archive was verified at 777,419,058 bytes with SHA-256
 `19f90f09f2ea32f1428b7cc1c7dd8c0606dfbc988c57fcaf64aea03e77b9d409`.
 
+For a fresh clone, `python3 scripts/reproduce.py` downloads the unchanged archive
+mirror from the repository's `data-v1` GitHub release, verifies it against this Dryad
+checksum, and extracts it under `data/raw/`. The machine-readable provenance and file
+inventory are in `data/interleaved_manifest.json`.
+
 Recommended first download for attempted-versus-listening inference: `interleavedVerbalBehaviors.zip`. Use `isolatedVerbalBehaviors.zip` later for descriptive coverage of all seven behaviors.
 
 Relevant interleaved files documented by the official analysis are:

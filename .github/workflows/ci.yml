@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Lint source and tests
+        run: python -m ruff check src tests scripts
+      - name: Run unit tests
+        run: python -m pytest
+      - name: Execute synthetic notebook smoke test
+        run: >-
+          python -m jupyter nbconvert --to notebook --execute
+          notebooks/01_attempted_vs_passive_shared_pca.ipynb
+          --output synthetic_smoke.ipynb --output-dir /tmp
+          --ExecutePreprocessor.timeout=600

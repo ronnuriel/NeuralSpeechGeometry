@@ -1,0 +1,17 @@
+{
+  "dataset": "Inner speech in motor cortex and implications for speech neuroprostheses",
+  "doi": "10.5061/dryad.gf1vhhn1j",
+  "license": "CC0 1.0",
+  "dryad_file_id": 4203846,
+  "archive": "interleavedVerbalBehaviors.zip",
+  "size_bytes": 777419058,
+  "sha256": "19f90f09f2ea32f1428b7cc1c7dd8c0606dfbc988c57fcaf64aea03e77b9d409",
+  "mirror": "https://github.com/ronnuriel/NeuralSpeechGeometry/releases/download/data-v1/interleavedVerbalBehaviors.zip",
+  "expected_files": {
+    "interleavedVerbalBehaviors/t12.2024.04.11_interleavedVerbalBehaviors_raw.mat": 4830190,
+    "interleavedVerbalBehaviors/t15.2024.06.14_interleavedVerbalBehaviors_raw.mat": 356757442,
+    "interleavedVerbalBehaviors/t16.2024.07.17_interleavedVerbalBehaviors_raw.mat": 126928854,
+    "interleavedVerbalBehaviors/t17.2024.12.09_interleavedVerbalBehaviors_raw.mat": 292407710,
+    "interleavedVerbalBehaviors/interleavedVerbalBehaviors_readme.txt": 2669
+  }
+}
