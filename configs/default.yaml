@@ -1,0 +1,46 @@
+project:
+  random_seed: 20250821
+
+dataset:
+  # Keep synthetic until an audited, tested .mat adapter is available.
+  mode: synthetic
+  # Recommended for a direct condition contrast because behaviors are intermixed.
+  variant: interleavedVerbalBehaviors
+  raw_dir: data/raw
+  participant: T15
+  feature: binnedTX
+  units: counts/bin
+  conditions:
+    - attempted_vocalized
+    - passive_listening
+
+synthetic:
+  n_channels: 48
+  n_trials_per_word_condition: 8
+  bin_width_ms: 20
+
+preprocessing:
+  alignment_event: behavior_onset
+  baseline_window_ms: [-500, -100]
+  analysis_window_ms: [0, 800]
+  smoothing_sigma_ms: 60
+  baseline_correct: true
+  standardize_channels: true
+
+pca:
+  n_components: 10
+  balance_conditions_for_fit: true
+  word_centroid_components: 3
+
+geometry:
+  subspace_dimension: 3
+  n_permutations: 500
+  permutation_strata:
+    - session
+    - block
+    - word
+
+outputs:
+  save_figures: true
+  figure_dir: results/figures
+  table_dir: results/tables
